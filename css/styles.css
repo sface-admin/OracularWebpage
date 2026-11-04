@@ -133,6 +133,7 @@ section[id]{scroll-margin-top:84px}
 /* Contact */
 .contact-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:start;margin-top:48px}
 .form-card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:34px;box-shadow:var(--shadow-sm)}
+.hp-field{position:absolute!important;left:-9999px!important;width:1px;height:1px;opacity:0;pointer-events:none;border:0;padding:0;margin:0}
 .field{margin-bottom:18px}
 .field label{display:block;font-weight:600;font-size:.9rem;color:var(--ink);margin-bottom:7px}
 .field input,.field textarea{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:12px;font-family:inherit;font-size:.95rem;color:var(--text);background:var(--paper-2);transition:border-color .15s,box-shadow .15s,background .15s}

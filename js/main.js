@@ -1,9 +1,9 @@
 /* Oracular - main.js
-   Contact form: by default uses a mailto fallback.
-   To send through a hosted endpoint, set FORMSPREE_ENDPOINT below,
-   e.g. https://formspree.io/f/abcdwxyz (create a form at formspree.io).
+   Contact form: sends to a Cloudflare Worker (worker/worker.js) which
+   emails the message via Resend. Set FORM_ENDPOINT to your Worker URL.
+   If FORM_ENDPOINT is empty, the form falls back to opening the email app.
 */
-var FORMSPREE_ENDPOINT = '';
+var FORM_ENDPOINT = 'https://oracular-mail.ashish-jain.workers.dev';
 
 (function () {
   'use strict';
@@ -87,6 +87,7 @@ var FORMSPREE_ENDPOINT = '';
       var email = ((document.getElementById('email') || {}).value || '').trim();
       var company = ((document.getElementById('company') || {}).value || '').trim();
       var message = ((document.getElementById('message') || {}).value || '').trim();
+      var botcheck = ((document.getElementById('botcheck') || {}).value || '').trim();
       if (!name || !email || !message) {
         showStatus('Please fill in your name, email and message.', 'err');
         return;
@@ -95,19 +96,21 @@ var FORMSPREE_ENDPOINT = '';
         showStatus('Please enter a valid email address.', 'err');
         return;
       }
-      if (FORMSPREE_ENDPOINT) {
+      if (FORM_ENDPOINT) {
         showStatus('Sending...', 'ok');
-        fetch(FORMSPREE_ENDPOINT, {
+        fetch(FORM_ENDPOINT, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-          body: JSON.stringify({ name: name, email: email, company: company, message: message })
+          body: JSON.stringify({ name: name, email: email, company: company, message: message, botcheck: botcheck })
         }).then(function (res) {
-          if (res.ok) {
-            showStatus('Thanks! Your message has been sent. We will get back to you shortly.', 'ok');
-            form.reset();
-          } else {
-            showStatus('Something went wrong. Please email support@sface.no directly.', 'err');
-          }
+          return res.json().catch(function () { return {}; }).then(function (data) {
+            if (res.ok && data && data.ok) {
+              showStatus('Thanks! Your message has been sent. We will get back to you shortly.', 'ok');
+              form.reset();
+            } else {
+              showStatus('Something went wrong. Please email support@sface.no directly.', 'err');
+            }
+          });
         }).catch(function () {
           showStatus('Something went wrong. Please email support@sface.no directly.', 'err');
         });
